@@ -24,30 +24,25 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # -------------------------
-      # Node setup
-      # -------------------------
+      - name: enable pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: pnpm
 
-      # -------------------------
-      # pnpm setup (CRITICAL FIX)
-      # -------------------------
-      - name: install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: add pnpm to PATH
-        shell: bash
-        run: echo "$(pnpm bin -g)" >> $GITHUB_PATH
+      - name: build frontend
+        run: pnpm build
 
       # -------------------------
       # Rust setup with caching
