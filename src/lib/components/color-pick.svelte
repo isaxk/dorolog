@@ -24,7 +24,7 @@
 	<Select.Portal>
 		<Select.Content
 			align="center"
-			class="overflow-hidden rounded-lg border border-zinc-100 bg-white p-0.5 drop-shadow-md"
+			class="overflow-hidden rounded-lg border border-border bg-white p-0.5 drop-shadow-md"
 		>
 			<div class="grid grid-cols-5 overflow-hidden rounded-md">
 				{#each Object.entries(colors) as [color, { fg }]}

@@ -1,17 +1,49 @@
 @import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+
+:root {
+	overscroll-behavior: none;
+
+	--background: #fff;
+	--foreground: #000;
+	--muted: #f3f4f6;
+	--primary: #155dfc;
+	--tab-selected: #e4e4e7;
+	--border: #e4e4e7;
+}
+
+/*@media (prefers-color-scheme: dark) {
+	:root {
+		--background: #000;
+		--foreground: #fff;
+		--muted: #1f2937;
+		--primary: #155dfc;
+		--tab-selected: #364153;
+		--border: #1f2937;
+	}
+}*/
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-muted: var(--muted);
+	--color-primary: var(--primary);
+	--color-tab-selected: var(--tab-selected);
+	--color-border: var(--border);
+}
+
+* {
+	cursor: default;
+}
+
+body {
+	background-color: var(--background);
+	color: var(--foreground);
+}
 
 @layer utilities {
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='number']::-webkit-outer-spin-button {
 		@apply appearance-none;
 	}
-}
-
-* {
-	user-select: none;
-	cursor: default;
-}
-
-:root {
-	overscroll-behavior: none;
 }

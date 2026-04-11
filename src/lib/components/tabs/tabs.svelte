@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import TabRow from './tab-row.svelte';
+	import TabItem from './tab-item.svelte';
 
 	let {
 		tabs,
@@ -15,18 +17,12 @@
 	} = $props();
 </script>
 
-<div class="flex w-full rounded-[10px] bg-zinc-50 p-0.5 drop-shadow-sm">
+<TabRow>
 	{#each tabs as tab (tab.value)}
-		<button
-			class={[
-				'w-full grow rounded-lg p-1 text-sm font-semibold transition-all',
-				value === tab.value ? 'bg-zinc-200' : 'bg-transparent hover:bg-zinc-100'
-			]}
-			onclick={() => (value = tab.value)}
-		>
+		<TabItem isActive={value === tab.value} onclick={() => (value = tab.value)}>
 			{tab.title}
-		</button>
+		</TabItem>
 	{/each}
-</div>
+</TabRow>
 
 {@render children?.(value)}

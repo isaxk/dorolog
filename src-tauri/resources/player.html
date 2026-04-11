@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+	<body>
+		<div id="player"></div>
+
+		<script src="https://www.youtube.com/iframe_api"></script>
+
+		<script>
+			const { listen } = window.__TAURI__.event;
+
+			let player;
+			let ready = false;
+
+			function onYouTubeIframeAPIReady() {
+				player = new YT.Player('player', {
+					height: '0',
+					width: '0',
+					videoId: '', // set dynamically
+					events: {
+						onReady: () => {
+							ready = true;
+						}
+					},
+					playerVars: {
+						autoplay: 0,
+						controls: 0
+					}
+				});
+			}
+
+			// Listen for commands
+			//
+			window.addEventListener('message', (event) => {
+				console.log(event.data);
+			});
+
+			listen('message', (event) => {
+				const { type, videoId, time, value } = event.payload;
+
+				console.log(event.payload);
+
+				if (!ready) return;
+
+				switch (type) {
+					case 'load':
+						player.loadVideoById(videoId);
+						break;
+					case 'play':
+						player.playVideo();
+						break;
+					case 'pause':
+						player.pauseVideo();
+						break;
+					case 'seek':
+						player.seekTo(time || 0, true);
+						break;
+					case 'volume':
+						player.setVolume(value);
+						break;
+				}
+			});
+		</script>
+	</body>
+</html>

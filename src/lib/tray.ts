@@ -4,8 +4,9 @@ import { Menu, type MenuOptions } from '@tauri-apps/api/menu';
 import { goto } from '$app/navigation';
 
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { Image } from '@tauri-apps/api/image';
 
-let trayInstance: TrayIcon | undefined;
+let trayInstance: TrayIcon | null = null;
 
 const timerLengths = [5, 10, 15, 20, 30, 45, 60, 90, 180];
 const breakLengths = [1, 2, 3, 4, 5, 7, 10, 15, 20];
@@ -20,19 +21,10 @@ const tags = [
 	'geography'
 ];
 
-async function initTray() {
-	const menu = await Menu.new({});
-	const options = {
-		menu
-	};
-
-	return await TrayIcon.new(options);
-}
-
 async function clearTray() {
 	if (trayInstance) {
 		await trayInstance.close();
-		trayInstance = undefined;
+		trayInstance = null;
 	}
 }
 
@@ -140,54 +132,59 @@ function createIdleMenu(tags: string[]): MenuOptions {
 }
 
 async function update(options: TrayStateOptions) {
-	if (!trayInstance) {
-		trayInstance = await initTray();
-	}
+	const menu = await Menu.new(
+		options.state === 'idle'
+			? createIdleMenu(options.tags)
+			: {
+					items: [
+						{
+							text: `#${options.tag} | ${options.time} ${options.state === 'stopwatch' ? 'elapsed' : 'remaining'}`,
+							action: async () => {
+								const mainWindow = new WebviewWindow('main');
 
-	console.log(trayInstance);
+								await mainWindow.show();
+								await mainWindow.setFocus();
+							}
+						},
+						{
+							item: 'Separator'
+						},
+						{
+							text: 'Toggle music playback',
+							action: async () => {
+								musicSubscriptions.forEach(({ callback }) => callback('playpause'));
+							}
+						},
+						{
+							text: 'End session',
+							action: () => {
+								goto('/');
+							}
+						},
+						{
+							item: 'Separator'
+						},
+						{
+							id: 'quit',
+							item: 'Quit',
+							text: 'Quit Dorolog'
+						}
+					]
+				}
+	);
 
 	if (trayInstance) {
-		const menu = await Menu.new(
-			options.state === 'idle'
-				? createIdleMenu(options.tags)
-				: {
-						items: [
-							{
-								text: `#${options.tag} | ${options.time} ${options.state === 'stopwatch' ? 'elapsed' : 'remaining'}`,
-								action: async () => {
-									const mainWindow = new WebviewWindow('main');
-
-									await mainWindow.show();
-									await mainWindow.setFocus();
-								}
-							},
-							{
-								item: 'Separator'
-							},
-							{
-								text: 'Toggle music playback',
-								action: async () => {
-									musicSubscriptions.forEach(({ callback }) => callback('playpause'));
-								}
-							},
-							{
-								text: 'End session',
-								action: () => {
-									goto('/');
-								}
-							},
-							{
-								item: 'Separator'
-							},
-							{
-								id: 'quit',
-								item: 'Quit',
-								text: 'Quit Dorolog'
-							}
-						]
-					}
-		);
 		await trayInstance.setMenu(menu);
+	} else {
+		const options = {
+			icon: await defaultWindowIcon(),
+			menu
+		};
+		if (trayInstance !== null) {
+			await trayInstance.setMenu(menu);
+		} else {
+			trayInstance = await TrayIcon.new(options);
+		}
 	}
 }
 
@@ -197,7 +194,6 @@ let musicSubscriptions: {
 }[] = [];
 
 export const tray = {
-	init: initTray,
 	clear: clearTray,
 	subscribeToMusicControl: (callback: () => void) => {
 		const id = Math.random().toString().substring(36);

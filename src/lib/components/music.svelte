@@ -10,21 +10,21 @@
 		PlusIcon
 	} from 'lucide-svelte';
 	import { onMount } from 'svelte';
-	import YoutubePlayer from 'youtube-player';
+	import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+
 	import { DropdownMenu } from 'bits-ui';
 	import { tray } from '$lib/tray';
 
 	let channels = ['jfKfPfyJRdk', '4xDzrJKXOOY', '7NOSDKb0HlU'];
 
-	let player = $state(null);
 	let state = $state();
+	let ytWin = $state(null);
 	let id = $state('jfKfPfyJRdk');
 
 	onMount(() => {
-		player = YoutubePlayer('player');
-
-		player?.on('stateChange', (event) => {
-			state = event.data;
+		WebviewWindow.getByLabel('yt').then((win: WebviewWindow | null) => {
+			console.log(win?.window);
+			ytWin = win?.window;
 		});
 
 		const musicUnsub = tray.subscribeToMusicControl((action) => {
@@ -39,15 +39,14 @@
 	});
 
 	$effect(() => {
-		console.log(player, 'help');
-		player?.loadVideoById(id);
+		ytWin?.postMessage({ type: 'load', videoId: id }, '*');
 	});
 
 	function togglePlay() {
 		if (state === 1) {
-			player?.pauseVideo();
+			ytWin?.postMessage({ type: 'pause' }, '*');
 		} else {
-			player?.playVideo();
+			ytWin?.postMessage({ type: 'play' }, '*');
 		}
 	}
 </script>
@@ -56,7 +55,7 @@
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger
 			style="background-image: url(https://i.ytimg.com/vi/{id}/sddefault.jpg); background-size: 200%;"
-			class="flex w-8 items-center justify-center border-r border-zinc-300 bg-center"
+			class="flex w-8 items-center justify-center border-r border-border bg-center"
 		>
 			<div
 				class="flex h-full w-full items-center justify-center bg-black/50 text-white opacity-0 transition-all group-hover:opacity-100"
@@ -69,7 +68,7 @@
 				sideOffset={4}
 				alignOffset={4}
 				align="center"
-				class="mr-1 flex flex-col gap-1.5 rounded-xl border border-zinc-200 bg-zinc-100 p-1.5 drop-shadow outline-none"
+				class="mr-1 flex flex-col gap-1.5 rounded-xl border border-border bg-zinc-100 p-1.5 drop-shadow outline-none"
 			>
 				<div class="flex gap-1.5">
 					{#each channels as channel, i (i)}
@@ -88,7 +87,7 @@
 						</button>
 					{/each}
 				</div>
-				<div class="flex w-48 gap-1 overflow-hidden rounded-lg border border-zinc-300 bg-white">
+				<div class="flex w-48 gap-1 overflow-hidden rounded-lg border border-border bg-white">
 					<input
 						placeholder="Enter YouTube URL..."
 						type="text"
@@ -96,7 +95,7 @@
 						name=""
 						id=""
 					/>
-					<button class="border-l border-zinc-300 bg-zinc-200 p-1 px-1.5 text-xs">Add</button>
+					<button class="border-l border-border bg-zinc-200 p-1 px-1.5 text-xs">Add</button>
 				</div>
 			</DropdownMenu.Content>
 		</DropdownMenu.Portal>
@@ -110,5 +109,3 @@
 		<Volume2 size={16} />
 	</div>
 </div>
-
-<div id="player" class="hidden"></div>

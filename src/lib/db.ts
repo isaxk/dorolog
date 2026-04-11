@@ -31,22 +31,25 @@ async function extendSession(id: string) {
 
 async function getAllSessions() {
 	if (!sql) return;
-	const result = await sql.select(`SELECT * FROM sessions_3`);
+	const result = await sql.select(`SELECT * FROM sessions_3 WHERE ended_at IS NOT NULL`);
 	return result;
 }
 
 async function getSessionsOnDay(date: string) {
 	if (!sql) return;
 	console.log(date);
-	const result = await sql.select(`SELECT * FROM sessions_3 WHERE DATE(started_at) = $1`, [date]);
+	const result = await sql.select(
+		`SELECT * FROM sessions_3 WHERE DATE(started_at) = $1 AND ended_at IS NOT NULL`,
+		[date]
+	);
 	return result;
 }
 
 async function getSessionsOfWeek(date: string) {
 	if (!sql) return;
-	const endOfWeek = dayjs(date).add(1, 'week').format('YYYY-MM-DD');
+	const endOfWeek = dayjs(date).add(6, 'day').format('YYYY-MM-DD');
 	const result = await sql.select(
-		`SELECT * FROM sessions_3 WHERE DATE(started_at) BETWEEN $1 AND $2`,
+		`SELECT * FROM sessions_3 WHERE DATE(started_at) BETWEEN $1 AND $2 AND ended_at IS NOT NULL`,
 		[date, endOfWeek]
 	);
 	return result;
@@ -59,9 +62,9 @@ async function getSessionsOfMonth(q: string) {
 		.set('month', parseInt(split[1]) - 1)
 		.set('date', 1)
 		.format('YYYY-MM-DD');
-	const endOfMonth = dayjs(startOfMonth).add(1, 'month').format('YYYY-MM-DD');
+	const endOfMonth = dayjs(startOfMonth).add(1, 'month').subtract(1, 'day').format('YYYY-MM-DD');
 	const result = await sql.select(
-		`SELECT * FROM sessions_3 WHERE DATE(started_at) BETWEEN $1 AND $2`,
+		`SELECT * FROM sessions_3 WHERE DATE(started_at) BETWEEN $1 AND $2 AND ended_at IS NOT NULL`,
 		[startOfMonth, endOfMonth]
 	);
 	return result;

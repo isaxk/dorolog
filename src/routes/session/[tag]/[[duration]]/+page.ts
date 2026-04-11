@@ -20,14 +20,14 @@ export const load: PageLoad<{ info: SessionInfo }> = ({ params }) => {
 		return {
 			info: {
 				type: 'break',
-				duration: parseInt(params.duration ?? '5') * 60 * 1000
+				duration: parseFloat(params.duration ?? '5') * 60 * 1000
 			}
 		};
 	} else if (params.duration) {
 		return {
 			info: {
 				type: 'timer',
-				duration: parseInt(params.duration ?? '25') * 60 * 1000,
+				duration: parseFloat(params.duration ?? '25') * 60 * 1000,
 				tag: params.tag
 			}
 		};

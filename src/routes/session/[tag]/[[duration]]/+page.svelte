@@ -7,6 +7,13 @@
 	import { db } from '$lib/db';
 	import { colors } from '$lib/data';
 	import { localStore } from '$lib/localStore.svelte';
+	import {
+		isPermissionGranted,
+		requestPermission,
+		sendNotification
+	} from '@tauri-apps/plugin-notification';
+	import { isMac } from '$lib/platform';
+	import WindowControls from '$lib/components/window-controls.svelte';
 
 	let {
 		data
@@ -18,6 +25,8 @@
 	let timeRemaining = $derived(data.info.duration);
 	let timeElapsed = $state(0);
 	let sessionId: string | null = $state(null);
+	let chimePlayed = $state(false);
+	let audioElm: HTMLAudioElement | null = $state(null);
 
 	const tags = localStore<{ name: string; color: string }[]>('tags', []);
 
@@ -60,14 +69,31 @@
 		const interval = setInterval(() => {
 			if (startTime) {
 				timeElapsed = Math.floor(Date.now() - startTime);
+
 				if (data.info.duration) {
 					timeRemaining = data.info.duration - timeElapsed;
+					if (timeRemaining < 1 && !chimePlayed) {
+						chimePlayed = true;
+						audioElm?.play();
+
+						if (data.info.type === 'break') {
+							sendNotification({ title: 'Break over!', body: "Let's start a new session" });
+						} else {
+							sendNotification({
+								title: `#${data.info.tag ?? 'Session'} | ${Math.floor(data.info.duration / (1000 * 60))}m complete!`,
+								body: 'You are now gaining overtime, keep working or end the session'
+							});
+						}
+					}
 				}
 			}
 		}, 100);
 		return () => {
 			clearInterval(interval);
 			clearInterval(extentSessionInterval);
+			if (timeElapsed > 300000 && sessionId) {
+				db.extendSession(sessionId);
+			}
 		};
 	});
 
@@ -93,6 +119,8 @@
 	});
 </script>
 
+<audio src="/chime.mp3" bind:this={audioElm} class="hidden"></audio>
+
 <!-- <pre>
     {JSON.stringify(data.info, null, 2)}
 </pre> -->
@@ -100,24 +128,36 @@
 <div class="flex h-screen flex-col items-center justify-center">
 	<!-- <a href="/">Home</a> -->
 	<div class="flex h-10 w-full p-1">
-		<div class="w-32"></div>
-		<div class="grow" data-tauri-drag-region></div>
-		<Music />
+		{#if isMac}
+			<div class="w-32"></div>
+		{/if}
+		<div class="h-12 grow" data-tauri-drag-region></div>
+		{#if !isMac}
+			<WindowControls />
+		{/if}
 	</div>
 	<div class="-mt-5 flex grow flex-col items-center justify-center gap-2">
 		{#if data.info.type === 'break'}
 			<div class="font-semibold text-zinc-500">Break session</div>
 		{:else}
-			<div
-				class="rounded-lg px-2 py-1 font-semibold drop-shadow-sm"
-				style:background-color={colors[tags.value.find((t) => t.name === data.info.tag)?.color]?.bg}
-				style:color={colors[tags.value.find((t) => t.name === data.info.tag)?.color]?.fg}
-			>
-				#{data.info.tag}
+			<div class="flex items-center gap-2">
+				<div
+					class="rounded-lg px-2 py-1 font-semibold drop-shadow-sm"
+					style:background-color={colors[tags.value.find((t) => t.name === data.info.tag)?.color]
+						?.bg}
+					style:color={colors[tags.value.find((t) => t.name === data.info.tag)?.color]?.fg}
+				>
+					#{data.info.tag}
+				</div>
 			</div>
 		{/if}
-		<div class="font-mono text-5xl font-bold">
-			{#if data.info.type === 'stopwatch'}
+		{#if (timeRemaining ?? 0) < 0}
+			<div class="text-sm font-semibold text-zinc-500">
+				Overtime - {data.info.duration / (1000 * 60)}m complete!
+			</div>
+		{/if}
+		<div class={['font-mono  font-bold', (timeRemaining ?? 0) < 0 ? 'text-4xl/6' : 'text-5xl']}>
+			{#if data.info.type === 'stopwatch' || (timeRemaining ?? 0) < 0}
 				{timeElapsedFormatted}
 			{:else}
 				{timeRemainingFormatted}

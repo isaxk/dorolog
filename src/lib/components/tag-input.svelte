@@ -28,10 +28,10 @@
 	}
 
 	$effect(() => {
-		tray.update({
-			state: 'idle',
-			tags: tags.value.toSorted((a, b) => a.name.localeCompare(b.name)).map((t) => t.name)
-		});
+		// tray.update({
+		// 	state: 'idle',
+		// 	tags: tags.value.toSorted((a, b) => a.name.localeCompare(b.name)).map((t) => t.name)
+		// });
 	});
 </script>
 
@@ -67,7 +67,7 @@
 		style:outline-color={colors[tags.value.find((tag) => tag.name === value)?.color]?.fg ??
 			'#2b7fff'}
 		class={[
-			'w-32 rounded-lg border border-zinc-200 py-0.5 pl-4.5 outline-none focus:outline-2 focus:outline-solid',
+			'w-32 rounded-lg border border-border py-0.5 pl-4.5 outline-none focus:outline-2 focus:outline-solid',
 			tags.value.find((tag) => tag.name === value) && q === value ? 'font-bold' : ''
 		]}
 		onfocus={() => {
@@ -93,8 +93,8 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class={[
-			'absolute bottom-9 max-h-32 w-48 transform-gpu overflow-scroll  rounded-lg border border-zinc-200 bg-white text-sm drop-shadow',
-			focused ? 'opacity-100' : 'opacity-0'
+			'absolute bottom-9 max-h-32 w-48 transform-gpu overflow-scroll  rounded-lg border border-border bg-white text-sm drop-shadow',
+			focused ? 'opacity-100' : 'hidden opacity-0'
 		]}
 	>
 		<div class="h-max transform-gpu">
