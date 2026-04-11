@@ -38,12 +38,6 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
-      - name: install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: build frontend
-        run: pnpm build
-
       # -------------------------
       # Rust setup with caching
       # -------------------------
@@ -83,9 +77,6 @@ jobs:
       # -------------------------
       - name: install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: build frontend
-        run: pnpm build
 
       # -------------------------
       # Tauri build + release
