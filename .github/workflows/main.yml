@@ -18,9 +18,11 @@ jobs:
         include:
           - platform: macos-latest
             target: aarch64-apple-darwin
+            friendly_name: macos-arm
           
           - platform: windows-latest 
             target: x86_64-pc-windows-msvc
+            friendly_name: windows-x64
 
     runs-on: ${{ matrix.platform }}
     
@@ -67,3 +69,4 @@ jobs:
           prerelease: false
           # Passes the specific target architecture to the Tauri CLI
           args: --target ${{ matrix.target }}
+          assetName: 'dorolog___VERSION___${{ matrix.friendly_name }}.__EXTENSION__'
