@@ -132,60 +132,58 @@ function createIdleMenu(tags: string[]): MenuOptions {
 }
 
 async function update(options: TrayStateOptions) {
-	const menu = await Menu.new(
-		options.state === 'idle'
-			? createIdleMenu(options.tags)
-			: {
-					items: [
-						{
-							text: `#${options.tag} | ${options.time} ${options.state === 'stopwatch' ? 'elapsed' : 'remaining'}`,
-							action: async () => {
-								const mainWindow = new WebviewWindow('main');
-
-								await mainWindow.show();
-								await mainWindow.setFocus();
-							}
-						},
-						{
-							item: 'Separator'
-						},
-						{
-							text: 'Toggle music playback',
-							action: async () => {
-								musicSubscriptions.forEach(({ callback }) => callback('playpause'));
-							}
-						},
-						{
-							text: 'End session',
-							action: () => {
-								goto('/');
-							}
-						},
-						{
-							item: 'Separator'
-						},
-						{
-							id: 'quit',
-							item: 'Quit',
-							text: 'Quit Dorolog'
-						}
-					]
-				}
-	);
-
-	if (trayInstance) {
-		await trayInstance.setMenu(menu);
-	} else {
-		const options = {
-			icon: await defaultWindowIcon(),
-			menu
-		};
-		if (trayInstance !== null) {
-			await trayInstance.setMenu(menu);
-		} else {
-			trayInstance = await TrayIcon.new(options);
-		}
-	}
+	// const menu = await Menu.new(
+	// 	options.state === 'idle'
+	// 		? createIdleMenu(options.tags)
+	// 		: {
+	// 				items: [
+	// 					{
+	// 						text: `#${options.tag} | ${options.time} ${options.state === 'stopwatch' ? 'elapsed' : 'remaining'}`,
+	// 						action: async () => {
+	// 							const mainWindow = new WebviewWindow('main');
+	// 							await mainWindow.show();
+	// 							await mainWindow.setFocus();
+	// 						}
+	// 					},
+	// 					{
+	// 						item: 'Separator'
+	// 					},
+	// 					{
+	// 						text: 'Toggle music playback',
+	// 						action: async () => {
+	// 							musicSubscriptions.forEach(({ callback }) => callback('playpause'));
+	// 						}
+	// 					},
+	// 					{
+	// 						text: 'End session',
+	// 						action: () => {
+	// 							goto('/');
+	// 						}
+	// 					},
+	// 					{
+	// 						item: 'Separator'
+	// 					},
+	// 					{
+	// 						id: 'quit',
+	// 						item: 'Quit',
+	// 						text: 'Quit Dorolog'
+	// 					}
+	// 				]
+	// 			}
+	// );
+	// if (trayInstance) {
+	// 	await trayInstance.setMenu(menu);
+	// } else {
+	// 	const options = {
+	// 		icon: await defaultWindowIcon(),
+	// 		menu
+	// 	};
+	// 	if (trayInstance !== null) {
+	// 		await trayInstance.setMenu(menu);
+	// 	} else {
+	// 		trayInstance = await TrayIcon.new(options);
+	// 	}
+	// }
 }
 
 let musicSubscriptions: {

@@ -14,6 +14,8 @@
 	} from '@tauri-apps/plugin-notification';
 	import { isMac } from '$lib/platform';
 	import WindowControls from '$lib/components/window-controls.svelte';
+	import { invoke } from '@tauri-apps/api/core';
+	import { listen } from '@tauri-apps/api/event';
 
 	let {
 		data
@@ -53,18 +55,47 @@
 	onMount(() => {
 		startTime = Date.now();
 
-		const extentSessionInterval = setInterval(() => {
-			if (data.info.type !== 'break') {
-				if (sessionId) {
-					db.extendSession(sessionId);
-				} else {
-					db.createSession(data.info.tag ?? '').then((id) => {
-						sessionId = id ?? null;
-						console.log(id);
-					});
-				}
-			}
-		}, 30000);
+		if (data.info.type !== 'break') {
+			db.createSession(data.info.tag ?? '').then((id) => {
+				sessionId = id ?? null;
+				invoke('start_timer', {
+					duration: data.info.duration,
+					tag: data.info.type === 'break' ? 'break' : (data.info.tag ?? ''),
+					sessionId: id
+				});
+			});
+		} else {
+			invoke('start_timer', {
+				duration: data.info.duration,
+				tag: 'break',
+				sessionId: null
+			});
+		}
+
+		// const extentSessionInterval = setInterval(() => {
+		// 	if (data.info.type !== 'break') {
+		// 		if (sessionId) {
+		// 			db.extendSession(sessionId);
+		// 		} else {
+		// 			db.createSession(data.info.tag ?? '').then((id) => {
+		// 				sessionId = id ?? null;
+		// 				console.log(id);
+		// 			});
+		// 		}
+		// 	}
+		// }, 30000);
+
+		listen('timer_done', () => {
+			// audioElm?.play();
+			if (sessionId) db.extendSession(sessionId);
+			// clearInterval(extentSessionInterval);
+		});
+
+		listen('timer_sync_db', (event) => {
+			const sessionId = event.payload as string;
+			db.extendSession(sessionId);
+			console.log(`DB Updated for session: ${sessionId}`);
+		});
 
 		const interval = setInterval(() => {
 			if (startTime) {
@@ -72,25 +103,25 @@
 
 				if (data.info.duration) {
 					timeRemaining = data.info.duration - timeElapsed;
-					if (timeRemaining < 1 && !chimePlayed) {
-						chimePlayed = true;
-						audioElm?.play();
+					// if (timeRemaining < 1 && !chimePlayed) {
+					// 	chimePlayed = true;
+					// 	audioElm?.play();
 
-						if (data.info.type === 'break') {
-							sendNotification({ title: 'Break over!', body: "Let's start a new session" });
-						} else {
-							sendNotification({
-								title: `#${data.info.tag ?? 'Session'} | ${Math.floor(data.info.duration / (1000 * 60))}m complete!`,
-								body: 'You are now gaining overtime, keep working or end the session'
-							});
-						}
-					}
+					// 	if (data.info.type === 'break') {
+					// 		sendNotification({ title: 'Break over!', body: "Let's start a new session" });
+					// 	} else {
+					// 		sendNotification({
+					// 			title: `#${data.info.tag ?? 'Session'} | ${Math.floor(data.info.duration / (1000 * 60))}m complete!`,
+					// 			body: 'You are now gaining overtime, keep working or end the session'
+					// 		});
+					// 	}
+					// }
 				}
 			}
 		}, 100);
 		return () => {
 			clearInterval(interval);
-			clearInterval(extentSessionInterval);
+			// clearInterval(extentSessionInterval);
 			if (timeElapsed > 300000 && sessionId) {
 				db.extendSession(sessionId);
 			}

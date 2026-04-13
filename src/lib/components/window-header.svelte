@@ -33,9 +33,11 @@
 	</div>
 	<div data-tauri-drag-region class="flex w-32 items-center justify-end gap-1 pr-2">
 		{@render right?.()}
-		{#if right && !isMac}
-			<div class="h-6 border-r border-border pr-1"></div>
+		{#if !isMac}
+			{#if right}
+				<div class="h-6 border-r border-border pr-1"></div>
+			{/if}
+			<WindowControls />
 		{/if}
-		<WindowControls />
 	</div>
 </div>

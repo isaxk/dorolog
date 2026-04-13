@@ -52,7 +52,7 @@
 			bind:value={type}
 			tabs={[
 				{ value: 'timer', title: 'Timer' },
-				{ value: 'stopwatch', title: 'Stopwatch' },
+
 				{ value: 'break', title: 'Break' }
 			]}
 		>
