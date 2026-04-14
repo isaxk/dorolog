@@ -30,6 +30,7 @@
 			<Tooltip.Trigger
 				tether={sessionsTether}
 				payload={{
+					id: session.id,
 					tag: session.tag,
 					duration: session.minutes,
 					start: dayjs(session.started_at).format('HH:mm'),

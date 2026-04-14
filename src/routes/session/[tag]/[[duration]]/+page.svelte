@@ -87,14 +87,16 @@
 
 		listen('timer_done', () => {
 			// audioElm?.play();
-			if (sessionId) db.extendSession(sessionId);
+			// if (sessionId) db.extendSession(sessionId);
 			// clearInterval(extentSessionInterval);
 		});
 
 		listen('timer_sync_db', (event) => {
-			const sessionId = event.payload as string;
-			db.extendSession(sessionId);
-			console.log(`DB Updated for session: ${sessionId}`);
+			const id = event.payload as string;
+			if (id === sessionId) {
+				db.extendSession(id);
+				console.log(`DB Updated for session: ${id}`);
+			}
 		});
 
 		const interval = setInterval(() => {
@@ -121,6 +123,7 @@
 		}, 100);
 		return () => {
 			clearInterval(interval);
+			invoke('cancel_timer');
 			// clearInterval(extentSessionInterval);
 			if (timeElapsed > 300000 && sessionId) {
 				db.extendSession(sessionId);
@@ -196,12 +199,12 @@
 		</div>
 	</div>
 	<div class="w-full p-2">
-		<a
+		<button
 			href={`/`}
 			class={[
 				'block w-full rounded-lg py-1 text-center text-sm font-bold text-white drop-shadow-sm',
-				timeRemaining < 0 ? 'bg-green-700' : 'bg-red-500'
-			]}>End</a
+				(timeRemaining ?? 0) < 0 ? 'bg-green-700' : 'bg-red-500'
+			]}>End</button
 		>
 	</div>
 </div>

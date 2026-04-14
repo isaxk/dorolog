@@ -193,6 +193,7 @@
 										<Tooltip.Trigger
 											tether={sessionsTether}
 											payload={{
+												id: session.id,
 												tag: session.tag,
 												duration: session.minutes,
 												start: dayjs(session.started_at).format('HH:mm'),
@@ -239,6 +240,7 @@
 								{/if}
 							</div>
 							<div class="flex items-center gap-1 text-xs">
+								{payload?.id}
 								<div>
 									{payload?.start} - {payload?.end}
 								</div>
@@ -272,7 +274,7 @@
 	{/each}
 </div> -->
 
-<!-- <div class="text-xl">Manual add session</div>
+<div class="text-xl">Manual add session</div>
 <input type="text" bind:value={tag} placeholder="#tag" />
 <input type="text" bind:value={started_at} placeholder="Start: YYYY-MM-DD HH:MM:SS" />
 <input type="text" bind:value={ended_at} placeholder="End: YYYY-MM-DD HH:MM:SS" />
@@ -280,10 +282,10 @@
 	onclick={() => {
 		db.manualAddSession(tag, started_at, ended_at);
 	}}>Add</button
-> -->
+>
 
-<!-- <input type="text" bind:value={sql} /><button
+<input type="text" bind:value={sql} /><button
 	onclick={() => {
 		db.execute(sql);
 	}}>Execute</button
-> -->
+>
