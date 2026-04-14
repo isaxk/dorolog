@@ -186,25 +186,27 @@
 			</div>
 		{/if}
 		{#if (timeRemaining ?? 0) < 0}
-			<div class="text-sm font-semibold text-zinc-500">
-				Overtime - {data.info.duration / (1000 * 60)}m complete!
+			<div class="text-2xl font-semibold">
+				{data.info.duration / (1000 * 60)}m complete!
+			</div>
+		{:else}
+			<div class={['font-mono  font-bold', (timeRemaining ?? 0) < 0 ? 'text-4xl/6' : 'text-5xl']}>
+				{#if data.info.type === 'stopwatch' || (timeRemaining ?? 0) < 0}
+					{timeElapsedFormatted}
+				{:else}
+					{timeRemainingFormatted}
+				{/if}
 			</div>
 		{/if}
-		<div class={['font-mono  font-bold', (timeRemaining ?? 0) < 0 ? 'text-4xl/6' : 'text-5xl']}>
-			{#if data.info.type === 'stopwatch' || (timeRemaining ?? 0) < 0}
-				{timeElapsedFormatted}
-			{:else}
-				{timeRemainingFormatted}
-			{/if}
-		</div>
 	</div>
 	<div class="w-full p-2">
-		<button
+		<a
 			href={`/`}
 			class={[
 				'block w-full rounded-lg py-1 text-center text-sm font-bold text-white drop-shadow-sm',
 				(timeRemaining ?? 0) < 0 ? 'bg-green-700' : 'bg-red-500'
-			]}>End</button
+			]}
+			>{#if (timeRemaining ?? 0) < 0}Close{:else}End{/if}</a
 		>
 	</div>
 </div>
