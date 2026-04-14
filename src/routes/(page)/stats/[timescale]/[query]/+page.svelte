@@ -240,7 +240,7 @@
 								{/if}
 							</div>
 							<div class="flex items-center gap-1 text-xs">
-								{payload?.id}
+								<!-- {payload?.id} -->
 								<div>
 									{payload?.start} - {payload?.end}
 								</div>
@@ -274,7 +274,7 @@
 	{/each}
 </div> -->
 
-<div class="text-xl">Manual add session</div>
+<!-- <div class="text-xl">Manual add session</div>
 <input type="text" bind:value={tag} placeholder="#tag" />
 <input type="text" bind:value={started_at} placeholder="Start: YYYY-MM-DD HH:MM:SS" />
 <input type="text" bind:value={ended_at} placeholder="End: YYYY-MM-DD HH:MM:SS" />
@@ -288,4 +288,4 @@
 	onclick={() => {
 		db.execute(sql);
 	}}>Execute</button
->
+> -->
