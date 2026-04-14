@@ -1,4 +1,4 @@
-name: "Tauri Build"
+name: 'Tauri Build'
 
 on:
   push:
@@ -19,16 +19,21 @@ jobs:
           - platform: macos-latest
             target: aarch64-apple-darwin
             friendly_name: macos-arm
-          
-          - platform: windows-latest 
+
+          - platform: windows-latest
             target: x86_64-pc-windows-msvc
             friendly_name: windows-x64
 
     runs-on: ${{ matrix.platform }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -59,10 +64,10 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MACOSX_DEPLOYMENT_TARGET: "11.0"
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
         with:
           # Automatically uses the version from your tauri.conf.json
-          tagName: app-v__VERSION__ 
+          tagName: app-v__VERSION__
           releaseName: 'App v__VERSION__'
           releaseBody: 'See the assets below to download and install this version.'
           releaseDraft: true # Creates a draft release rather than publishing immediately
